@@ -1,4 +1,4 @@
-// Background Matrix Rain Animation
+// Background Soft Fire Sparks Animation
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -9,33 +9,46 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-const characters = '01ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%^&*()*&^%';
-const fontSize = 14;
-let columns = canvas.width / fontSize;
-const drops = [];
+const sparks = [];
+const numSparks = 60;
 
-for (let i = 0; i < columns; i++) {
-    drops[i] = 1;
+for (let i = 0; i < numSparks; i++) {
+    sparks.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2.5 + 1,
+        speedY: Math.random() * 0.8 + 0.3,
+        speedX: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.7 + 0.2,
+        color: Math.random() > 0.4 ? '#ff6600' : '#ffcc00'
+    });
 }
 
-function drawMatrix() {
-    ctx.fillStyle = 'rgba(3, 10, 3, 0.08)';
+function drawSparks() {
+    ctx.fillStyle = 'rgba(8, 3, 2, 0.2)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = '#00ff66';
-    ctx.font = fontSize + 'px monospace';
+    sparks.forEach(spark => {
+        ctx.save();
+        ctx.globalAlpha = spark.alpha;
+        ctx.beginPath();
+        ctx.arc(spark.x, spark.y, spark.radius, 0, Math.PI * 2);
+        ctx.fillStyle = spark.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = spark.color;
+        ctx.fill();
+        ctx.restore();
 
-    for (let i = 0; i < drops.length; i++) {
-        const text = characters.charAt(Math.floor(Math.random() * characters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        spark.y -= spark.speedY;
+        spark.x += spark.speedX;
 
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
+        if (spark.y < 0) {
+            spark.y = canvas.height + 10;
+            spark.x = Math.random() * canvas.width;
         }
-        drops[i]++;
-    }
+    });
 }
-setInterval(drawMatrix, 33);
+setInterval(drawSparks, 33);
 
 // Intro Screen Handling
 window.addEventListener('load', () => {
